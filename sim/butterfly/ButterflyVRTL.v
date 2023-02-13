@@ -1,6 +1,6 @@
 `ifndef PROJECT_BUTTERFLY_V
 `define PROJECT_BUTTERFLY_V
-`include "butterfly-unit/sim/butterfly/./fixedpt-iterative-complex-multiplier/sim/cmultiplier/FpcmultVRTL.v"
+`include "./fixedpt-iterative-complex-multiplier/sim/cmultiplier/FpcmultVRTL.v"
 module ButterflyVRTL
 #(
 	parameter n = 32,
@@ -35,9 +35,9 @@ module ButterflyVRTL
         .send_rdy(send_rdy)
             );
 
-	assign cr = cr + tr;
-	assign cc = cc + tc;
-	assign dr = dr - tr;
-	assign dc = dc - tc;
+	assign cr = ar + tr;
+	assign cc = ac + tc;
+	assign dr = ar - tr;
+	assign dc = ac - tc;
 endmodule
 `endif

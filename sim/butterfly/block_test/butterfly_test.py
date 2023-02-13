@@ -219,6 +219,6 @@ def test_without_mult(execution_number, sequence_length, n, d): # test modules w
 
 	run_sim(model, cmdline_opts={
 		'dump_textwave':False,
-		'dump_vcd':f'rand_{execution_number}_{sequence_length}_{n}_{d}_0',
+		'dump_vcd':True,
 		'max_cycles':(30+6*len(dat)) # makes sure the time taken grows constantly
 	})
