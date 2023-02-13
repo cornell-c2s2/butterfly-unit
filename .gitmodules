@@ -1,0 +1,3 @@
+[submodule "sim/butterfly/fixedpt-iterative-complex-multiplier"]
+	path = sim/butterfly/fixedpt-iterative-complex-multiplier
+	url = https://github.com/cornell-c2s2/fixedpt-iterative-complex-multiplier.git
