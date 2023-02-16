@@ -1,6 +1,6 @@
 `ifndef PROJECT_BUTTERFLY_V
 `define PROJECT_BUTTERFLY_V
-`include "./fixedpt-iterative-complex-multiplier/sim/cmultiplier/FpcmultVRTL.v"
+`include "../../../fixedpt-iterative-complex-multiplier/sim/cmultiplier/FpcmultVRTL.v"
 module ButterflyVRTL
 #(
 	parameter n = 32,
