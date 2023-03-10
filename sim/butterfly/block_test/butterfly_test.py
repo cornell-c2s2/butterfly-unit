@@ -36,7 +36,6 @@ def cmul(n, d, a, b):
 
 def butterfly(n, d, a, b, w):
 	t = cmul(n, d, b, w);
-	print("FUNNY", b, t, w)
 	return ((a + t).resize(n, d), (a - t).resize(n, d));
 
 def mk_msg(n, a, b, w):
@@ -204,9 +203,6 @@ def test_optimizations(execution_number, sequence_length, n, d, m): # test modul
 
 	dat = [(rand_cfixed(n, d), rand_cfixed(n, d), rand_cfixed(n, d)) for i in range(sequence_length)]
 	solns = [butterfly(n, d, i[0], i[1], opt_omega[m-1]) for i in dat]
-
-	print("TEST INFO:", n, d, m, opt_omega, opt_omega[m-1])
-	print("expecting", dat[0], "to", solns[0])
 
 	model = create_model(n, d, m)
 
