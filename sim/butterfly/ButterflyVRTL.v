@@ -6,7 +6,13 @@ module ButterflyVRTL
 #(
 	parameter n = 32,
 	parameter d = 16,
-	parameter mult = 1 // 1 if we include the multiplication of w (saves area as w is usually 1)
+	parameter mult = 0
+	// Optimization parameter to save area:
+	// 0 if we include the multiplier
+	// 1 if omega = 1
+	// 2 if omega = -1
+	// 3 if omega = i (j)
+	// 3 if omega = -i (-j)
 ) (clk, reset, recv_val, recv_rdy, send_val, send_rdy, ar, ac, br, bc, wr, wc, cr, cc, dr, dc);
 	/* performs the butterfly operation, equivalent to doing
 		| 1  w |   | a |   | c |
@@ -21,9 +27,92 @@ module ButterflyVRTL
 
 	logic [n-1:0] ar_imm, ac_imm;
 
-	logic mul_rdy;
 	logic [n-1:0] tr, tc;
 
+	case (mult)
+		1: begin
+			always @(posedge clk) begin
+				if (reset) begin
+					cr = 0; cc = 0; dr = 0; dc = 0;
+					send_val = 0;
+				end else if (recv_val & recv_rdy) begin
+					cr = ar + br; cc = ac + bc; dr = ar - br; dc = ac - bc;
+					send_val = 1;
+				end else if (send_val & send_rdy) begin
+					send_val = 0;
+				end else begin
+					cr = cr; cc = cc; dr = dr; dc = dc;
+					send_val = send_val;
+				end
+			end
+			assign recv_rdy = ~send_val;
+		end
+		2: begin
+			always @(posedge clk) begin
+				if (reset) begin
+					cr = 0; cc = 0; dr = 0; dc = 0;
+					send_val = 0;
+				end else if (recv_val & recv_rdy) begin
+					cr = ar - br; cc = ac - bc; dr = ar + br; dc = ac + bc;
+					send_val = 1;
+				end else if (send_val & send_rdy) begin
+					send_val = 0;
+				end else begin
+					cr = cr; cc = cc; dr = dr; dc = dc;
+					send_val = send_val;
+				end
+			end
+			assign recv_rdy = ~send_val;
+		end
+		3: begin
+			always @(posedge clk) begin
+				if (reset) begin
+					cr = 0; cc = 0; dr = 0; dc = 0;
+					send_val = 0;
+				end else if (recv_val & recv_rdy) begin
+					cr = ar - bc; cc = ac + br; dr = ar + bc; dc = ac - br;
+					send_val = 1;
+				end else if (send_val & send_rdy) begin
+					send_val = 0;
+				end else begin
+					cr = cr; cc = cc; dr = dr; dc = dc;
+					send_val = send_val;
+				end
+			end
+			assign recv_rdy = ~send_val;
+		end
+		4: begin
+			always @(posedge clk) begin
+				if (reset) begin
+					cr = 0; cc = 0; dr = 0; dc = 0;
+					send_val = 0;
+				end else if (recv_val & recv_rdy) begin
+					cr = ar + bc; cc = ac - br; dr = ar - bc; dc = ac + br;
+					send_val = 1;
+				end else if (send_val & send_rdy) begin
+					send_val = 0;
+				end else begin
+					cr = cr; cc = cc; dr = dr; dc = dc;
+					send_val = send_val;
+				end
+			end
+			assign recv_rdy = ~send_val;
+		end
+		default: begin
+			FpcmultVRTL #(.n(n), .d(d)) mul ( // ar * br
+				.clk(clk),
+				.reset(reset),
+				.ar(br),
+				.ac(bc),
+				.br(wr),
+				.bc(wc),
+				.cr(tr),
+				.cc(tc),
+				.recv_val(recv_val),
+				.recv_rdy(recv_rdy),
+				.send_val(send_val),
+				.send_rdy(send_rdy)
+			);
 
 	FpcmultVRTL #(.n(n), .d(d)) mul ( // ar * br
         .clk(clk),
