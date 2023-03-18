@@ -1,6 +1,7 @@
 `ifndef PROJECT_BUTTERFLY_V
 `define PROJECT_BUTTERFLY_V
 `include "../../../fixedpt-iterative-complex-multiplier/sim/cmultiplier/FpcmultVRTL.v"
+`include "../../../butterfly-unit/sim/butterfly/RegisterV.v"
 module ButterflyVRTL
 #(
 	parameter n = 32,
@@ -18,7 +19,7 @@ module ButterflyVRTL
 	output logic send_val, recv_rdy;
 	output logic [n-1:0] cr, cc, dr, dc;
 
-	logic [n-1:0] ar_reg, ac_reg;
+	logic [n-1:0] ar_imm, ac_imm;
 
 	logic mul_rdy;
 	logic [n-1:0] tr, tc;
@@ -38,23 +39,15 @@ module ButterflyVRTL
         .send_val(send_val),
         .send_rdy(send_rdy)
             );
+	
+	RegisterV #(.BIT_WIDTH(n)) ac_reg(.clk(clk), .w(recv_rdy), .d(ac), .q(ac_imm), .reset());
+	RegisterV #(.BIT_WIDTH(n)) ar_reg(.clk(clk), .w(recv_rdy), .d(ar), .q(ar_imm), .reset());
 
-	always@(posedge clk) begin
-		if(reset) begin
-			ar_reg = 0;
-			ac_reg = 0;
-		end else if(recv_rdy) begin
-			ar_reg = ar;
-			ac_reg = ac;
-		end else begin
-			ar_reg = ar_reg;
-			ac_reg = ac_reg;
-		end
-	end
 
-	assign cr = ar_reg + tr;
-	assign cc = ac_reg + tc;
-	assign dr = ar_reg - tr;
-	assign dc = ac_reg - tc;
+
+	assign cr = ar_imm + tr;
+	assign cc = ac_imm + tc;
+	assign dr = ar_imm - tr;
+	assign dc = ac_imm - tc;
 endmodule
 `endif
