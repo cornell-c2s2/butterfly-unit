@@ -29,91 +29,6 @@ module ButterflyVRTL
 
 	logic [n-1:0] tr, tc;
 
-	case (mult)
-		1: begin
-			always @(posedge clk) begin
-				if (reset) begin
-					cr = 0; cc = 0; dr = 0; dc = 0;
-					send_val = 0;
-				end else if (recv_val & recv_rdy) begin
-					cr = ar + br; cc = ac + bc; dr = ar - br; dc = ac - bc;
-					send_val = 1;
-				end else if (send_val & send_rdy) begin
-					send_val = 0;
-				end else begin
-					cr = cr; cc = cc; dr = dr; dc = dc;
-					send_val = send_val;
-				end
-			end
-			assign recv_rdy = ~send_val;
-		end
-		2: begin
-			always @(posedge clk) begin
-				if (reset) begin
-					cr = 0; cc = 0; dr = 0; dc = 0;
-					send_val = 0;
-				end else if (recv_val & recv_rdy) begin
-					cr = ar - br; cc = ac - bc; dr = ar + br; dc = ac + bc;
-					send_val = 1;
-				end else if (send_val & send_rdy) begin
-					send_val = 0;
-				end else begin
-					cr = cr; cc = cc; dr = dr; dc = dc;
-					send_val = send_val;
-				end
-			end
-			assign recv_rdy = ~send_val;
-		end
-		3: begin
-			always @(posedge clk) begin
-				if (reset) begin
-					cr = 0; cc = 0; dr = 0; dc = 0;
-					send_val = 0;
-				end else if (recv_val & recv_rdy) begin
-					cr = ar - bc; cc = ac + br; dr = ar + bc; dc = ac - br;
-					send_val = 1;
-				end else if (send_val & send_rdy) begin
-					send_val = 0;
-				end else begin
-					cr = cr; cc = cc; dr = dr; dc = dc;
-					send_val = send_val;
-				end
-			end
-			assign recv_rdy = ~send_val;
-		end
-		4: begin
-			always @(posedge clk) begin
-				if (reset) begin
-					cr = 0; cc = 0; dr = 0; dc = 0;
-					send_val = 0;
-				end else if (recv_val & recv_rdy) begin
-					cr = ar + bc; cc = ac - br; dr = ar - bc; dc = ac + br;
-					send_val = 1;
-				end else if (send_val & send_rdy) begin
-					send_val = 0;
-				end else begin
-					cr = cr; cc = cc; dr = dr; dc = dc;
-					send_val = send_val;
-				end
-			end
-			assign recv_rdy = ~send_val;
-		end
-		default: begin
-			FpcmultVRTL #(.n(n), .d(d)) mul ( // ar * br
-				.clk(clk),
-				.reset(reset),
-				.ar(br),
-				.ac(bc),
-				.br(wr),
-				.bc(wc),
-				.cr(tr),
-				.cc(tc),
-				.recv_val(recv_val),
-				.recv_rdy(recv_rdy),
-				.send_val(send_val),
-				.send_rdy(send_rdy)
-			);
-
 	FpcmultVRTL #(.n(n), .d(d)) mul ( // ar * br
         .clk(clk),
         .reset(reset),
@@ -131,7 +46,6 @@ module ButterflyVRTL
 	
 	RegisterV #(.BIT_WIDTH(n)) ac_reg(.clk(clk), .w(recv_rdy), .d(ac), .q(ac_imm), .reset());
 	RegisterV #(.BIT_WIDTH(n)) ar_reg(.clk(clk), .w(recv_rdy), .d(ar), .q(ar_imm), .reset());
-
 
 
 	assign cr = ar_imm + tr;
