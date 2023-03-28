@@ -159,14 +159,14 @@ def test_random(execution_number, sequence_length, n, d, m): # test individual a
 
 	model.set_param("top.src.construct",
 		msgs=dat,
-		initial_delay=5,
-		interval_delay=5
+		initial_delay=0,
+		interval_delay=0
 	)
 
 	model.set_param("top.sink.construct", 
 		msgs=[mk_ret(n, c.get(), d.get()) for (c, d) in solns],
-		initial_delay=5,
-		interval_delay=5
+		initial_delay=0,
+		interval_delay=0
 	)
 
 	run_sim(model, cmdline_opts={
@@ -210,14 +210,14 @@ def test_optimizations(execution_number, sequence_length, n, d, m): # test modul
 
 	model.set_param("top.src.construct",
 		msgs=dat,
-		initial_delay=5,
-		interval_delay=5
+		initial_delay=0,
+		interval_delay=0
 	)
 
 	model.set_param("top.sink.construct", 
 		msgs=[mk_ret(n, c.get(), d.get()) for (c, d) in solns],
-		initial_delay=5,
-		interval_delay=5
+		initial_delay=0,
+		interval_delay=0
 	)
 
 	run_sim(model, cmdline_opts={

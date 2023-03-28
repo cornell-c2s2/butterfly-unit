@@ -2,7 +2,6 @@
 `define PROJECT_BUTTERFLY_V
 `include "../../../fixedpt-iterative-complex-multiplier/sim/cmultiplier/FpcmultVRTL.v"
 `include "../../../butterfly-unit/sim/butterfly/RegisterV.v"
-`include "../vc/queues.v"
 
 module ButterflyVRTL
 
@@ -15,7 +14,7 @@ module ButterflyVRTL
 	// 1 if omega = 1
 	// 2 if omega = -1
 	// 3 if omega = i (j)
-	// 3 if omega = -i (-j)
+	// 4 if omega = -i (-j)
 ) (clk, reset, recv_val, recv_rdy, send_val, send_rdy, ar, ac, br, bc, wr, wc, cr, cc, dr, dc);
 	/* performs the butterfly operation, equivalent to doing
 		| 1  w |   | a |   | c |
@@ -34,7 +33,6 @@ module ButterflyVRTL
 	generate
 		if (mult == 1) begin
 			always @(posedge clk) begin
-				vc_Queue #(.p_msg_nbits(n), .p_num_msgs(1)) ar_Q (.())
 				if (reset) begin
 					cr = 0; cc = 0; dr = 0; dc = 0;
 					send_val = 0;
@@ -66,7 +64,8 @@ module ButterflyVRTL
 			end
 			assign recv_rdy = ~send_val;
 		end else if (mult == 3) begin
-			if (reset) begin
+			always @(posedge clk) begin
+				if (reset) begin
 					cr = 0; cc = 0; dr = 0; dc = 0;
 					send_val = 0;
 				end else if (recv_val & recv_rdy) begin
@@ -78,8 +77,24 @@ module ButterflyVRTL
 					cr = cr; cc = cc; dr = dr; dc = dc;
 					send_val = send_val;
 				end
+			end
+			assign recv_rdy = ~send_val;
 		end else if (mult == 4) begin
-
+			always @(posedge clk) begin
+				if (reset) begin
+					cr = 0; cc = 0; dr = 0; dc = 0;
+					send_val = 0;
+				end else if (recv_val & recv_rdy) begin
+					cr = ar + bc; cc = ac - br; dr = ar - bc; dc = ac + br;
+					send_val = 1;
+				end else if (send_val & send_rdy) begin
+					send_val = 0;
+				end else begin
+					cr = cr; cc = cc; dr = dr; dc = dc;
+					send_val = send_val;
+				end
+			end
+			assign recv_rdy = ~send_val;
 		end else begin
 			FpcmultVRTL #(.n(n), .d(d)) mul ( // ar * br
 				.clk(clk),
